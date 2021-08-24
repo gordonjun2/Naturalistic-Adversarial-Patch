@@ -1,0 +1,13 @@
+6: red light
+15: gender
+24: color intensity
+49: lightening 2
+50: eyes
+53: contrast
+57: luminance
+58: hair-skin inversion
+69: skin tone
+70: redness
+71: tan
+78: saturation
+96: smile (entangled)

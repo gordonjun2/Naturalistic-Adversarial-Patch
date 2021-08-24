@@ -1,0 +1,6 @@
+22: zoom
+24: lighting
+59: background removal
+60: background_blur
+75: rotation
+81: y_shift

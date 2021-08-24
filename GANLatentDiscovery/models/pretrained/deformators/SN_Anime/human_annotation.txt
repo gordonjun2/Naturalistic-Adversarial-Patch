@@ -1,0 +1,8 @@
+1: hair
+47: naturalness
+73: dark hair
+81: red
+85: y-scale
+86: face size
+113: hair driection
+118: glasses

@@ -1,0 +1,5 @@
+8: fat
+2: roundness
+10: xscale
+13: zoom
+44: rotation

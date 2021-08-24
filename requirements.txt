@@ -1,0 +1,11 @@
+numpy==1.19.1
+torch==1.6.0
+torchvision==0.7.0
+matplotlib==3.3.0
+tqdm==4.48.2
+torchsummary==1.5.1
+tensorboardX==2.1
+scipy==1.5.2
+opencv-python==4.4.0.40
+ImageAug==0.1.0.post0
+torchgeometry==0.1.2

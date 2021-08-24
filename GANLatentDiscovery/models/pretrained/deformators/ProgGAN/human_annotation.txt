@@ -1,0 +1,6 @@
+19: hair
+20: zoom
+12: rotation
+16: lighting
+43: width
+94: chin-forehead (+hair affect)

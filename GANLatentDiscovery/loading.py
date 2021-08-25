@@ -26,12 +26,13 @@ def load_generator(args, G_weights):
 
 
 
-def load_from_dir(root_dir, model_index=None, G_weights=None, D_weights=None, shift_in_w=True):
+def load_from_dir(root_dir, model_index=None, G_weights=None, shift_in_w=True):
     args = json.load(open(os.path.join(root_dir, 'args.json')))
     args['w_shift'] = shift_in_w
 
     models_dir = os.path.join(root_dir, 'models')
     if model_index is None:
+        # st()
         models = os.listdir(models_dir)
         model_index = max(
             [int(name.split('.')[0].split('_')[-1]) for name in models
@@ -49,7 +50,6 @@ def load_from_dir(root_dir, model_index=None, G_weights=None, D_weights=None, sh
         args['resolution'] = 128
 
     G, D = load_generator(args, G_weights)
-    
     deformator = LatentDeformator(
         shift_dim=G.dim_shift,
         input_dim=args['directions_count'] if 'directions_count' in args.keys() else None,

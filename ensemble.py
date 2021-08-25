@@ -261,8 +261,8 @@ if(dataset_second == "inria"):
 # InriaDataset
     ds_image_size_second   = 416
     # batch_size_second      = 8
-    train_loader_second = torch.utils.data.DataLoader(InriaDataset(img_dir='../dataset/inria/Train/pos', 
-                                                            lab_dir='../dataset/inria/Train/pos/'+str(label_folder_name), 
+    train_loader_second = torch.utils.data.DataLoader(InriaDataset(img_dir='./dataset/inria/Train/pos', 
+                                                            lab_dir='./dataset/inria/Train/pos/'+str(label_folder_name), 
                                                             max_lab=14,
                                                             imgsize=ds_image_size_second,
                                                             shuffle=True),
@@ -273,8 +273,8 @@ elif(dataset_second == "test"):
 # InriaDataset
     ds_image_size_second   = 416
     batch_size_second      = 16
-    train_loader_second = torch.utils.data.DataLoader(InriaDataset(img_dir='../dataset/video/output_imgs', 
-                                                            lab_dir='../dataset/video/output_imgs/yolo-labels', 
+    train_loader_second = torch.utils.data.DataLoader(InriaDataset(img_dir='./dataset/video/output_imgs', 
+                                                            lab_dir='./dataset/video/output_imgs/yolo-labels', 
                                                             max_lab=14,
                                                             imgsize=ds_image_size_second,
                                                             shuffle=True),

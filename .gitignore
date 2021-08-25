@@ -16,6 +16,7 @@
 !./GANLatentDiscovery/models/pretrained/deformators/BigGAN/args.json
 !./GANLatentDiscovery/models/BigGAN/generator_config.json
 generated/
+dataset/
 checkpoint/
 runs/
 *.weights

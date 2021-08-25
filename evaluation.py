@@ -42,12 +42,9 @@ Gparser.add_argument('--patch', default='', help='patch location')
 apt1, unpar = Gparser.parse_known_args()
 print(apt1)
 print()
-# st()
 
 
 ### -----------------------------------------------------------    Setting     ---------------------------------------------------------------------- ###
-# model_name                 = "yolov3"        # yolov4, yolov3, yolov2, fasterrcnn
-# yolo_tiny                  = False            # only yolov4, yolov3
 model_name                 = apt1.model        # yolov4, yolov3, yolov2, fasterrcnn
 yolo_tiny                  = apt1.tiny            # only yolov4, yolov3
 by_rectangle               = True
@@ -57,7 +54,7 @@ enable_randomLocation      = False
 enable_crease              = False
 enable_projection          = False 
 enable_rectOccluding       = False 
-enable_blurred             = True 
+enable_blurred             = False 
 # output images with bbox
 enable_with_bbox           = True            # outputs with bbox 
 # other setting
@@ -77,8 +74,8 @@ fake_images_path = apt1.patch
 
 # data source
 video_name                 = "WIN_20210113_18_36_46_Pro"     # WIN_20200903_16_52_27_Pro, WIN_20200903_17_17_34_Pro, WIN_20210113_18_36_46_Pro
-video_folder               = "../dataset/video/"
-source_folder              = "../dataset/inria/Test/pos/"    # ../dataset/inria/Train/pos/   ,   ../dataset/inria/Test/pos/
+video_folder               = "./dataset/video/"
+source_folder              = "./dataset/inria/Test/pos/"    # ../dataset/inria/Train/pos/   ,   ../dataset/inria/Test/pos/
 # video or folder
 source_key                 = 1     # 1:inria     0:video
 
@@ -88,7 +85,7 @@ if yolo_tiny==True and model_name!="yolov2":
     sss = model_name+"tiny"
 else:
     sss=model_name
-label_labelRescale_folder = "../dataset/inria/Test/pos/yolo-labels-rescale_"+sss
+label_labelRescale_folder = "./dataset/inria/Test/pos/yolo-labels-rescale_"+sss
 enable_show_map_process    = False
 
 # sss = sss+'_'+fake_images_path[35:40] # -6:-4
@@ -433,8 +430,8 @@ if(enable_count_map):
                                 path_detection_results=outout_labelRescale_folder, 
                                 path_images_optional=output_imgs_foler)
     # save
-    with open("../"+output_folder+"map.txt", "w") as text_file:
-        text_file.write(str(output_map))
+    # with open("./"+output_folder+"map.txt", "w") as text_file:
+    #     text_file.write(str(output_map))
 
 print(fake_images_path)
 if yolo_tiny==True and model_name!='yolov2':

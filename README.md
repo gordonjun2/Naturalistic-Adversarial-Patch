@@ -83,11 +83,19 @@ After you prepare the weights and dataset, you can evaluate or generate a natura
 ```bash
 CUDA_VISIBLE_DEVICES=0 python evaluation.py --model yolov4 --tiny --patch ./patch_sample/v4tiny.png
 ```
+- `--model`: detector model. You can use yolov2, yolov3, yolov4, or fasterrcnn.
+- `--tiny`: only works for YOLOv3 and YOLOv4. To use TOLOv4tiny, enable this argument.
+- `--patch`: the patch position. 
 
 ### Train an adversarial patch:
+To train an adversarial patch using YOLOv4tiny:
 ```bash
 CUDA_VISIBLE_DEVICES=0 python ensemble.py --model=yolov4 --tiny
 ```
+- `--model`: detector model. You can use yolov2, yolov3, yolov4, or fasterrcnn.
+- `--tiny`: only works for YOLOv3 and YOLOv4. To use TOLOv4tiny, enable this argument.
+- `--classBiggan`: the class of generated patch. You can choose from 0 to 999 (ImageNet pretrained). 
+
 The result (i.e, adversarial patch) will be saved at exp/exp{experiemnt id} automatically.
 You can use tensorboard to check the training history: 
 ```bash

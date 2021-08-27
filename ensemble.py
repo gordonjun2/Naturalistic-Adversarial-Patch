@@ -134,7 +134,7 @@ np.savetxt(f"./{global_dir}/{apt}--latent:{max_value_latent_item}_normal.txt",[e
 
 
 # confirm training data (Second dataset)
-label_folder_name = 'yolo-labels_' + str('yolov4')
+label_folder_name = 'yolo-labels_' + str(model_name)
 if(model_name == "yolov3" or model_name == "yolov4"):
     if(yolo_tiny):
         label_folder_name = label_folder_name + 'tiny'

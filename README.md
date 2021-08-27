@@ -41,7 +41,7 @@ Download the INRIA dataset using following command:
 ```bash
 bash download_inria.sh
 ```
-The original INRIA dataset comes from [IRRIA](http://pascal.inrialpes.fr/data/human/).
+The original INRIA dataset comes from [INRIA](http://pascal.inrialpes.fr/data/human/).
 
 Check the dataset position:
 ```
@@ -88,7 +88,7 @@ CUDA_VISIBLE_DEVICES=0 python evaluation.py --model yolov4 --tiny --patch ./patc
 ```bash
 CUDA_VISIBLE_DEVICES=0 python ensemble.py --model=yolov4 --tiny
 ```
-The result (i.e, adversarial patch) will be save at exp/exp{experiemnt id} automatically.
+The result (i.e, adversarial patch) will be saved at exp/exp{experiemnt id} automatically.
 You can use tensorboard to check the training history: 
 ```bash
 tensorboard --logdir=./exp 

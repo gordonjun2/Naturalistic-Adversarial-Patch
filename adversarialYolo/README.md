@@ -4,7 +4,7 @@
 
 Paper link: https://arxiv.org/abs/1904.08653
 
-Please refer to original link.
+Please refer to the original link.
 
 If you use this work, please cite this paper.
 

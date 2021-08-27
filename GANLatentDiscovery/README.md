@@ -2,7 +2,7 @@
 
 **This repository is based on [Unsupervised Discovery of Interpretable Directions in the GAN Latent Space](https://github.com/anvoynov/GANLatentDiscovery)** 
 
-Please refer to original link.
+Please refer to the original link.
 
 If you use this work, please cite this paper.
 

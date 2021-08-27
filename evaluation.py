@@ -24,7 +24,7 @@ from PyTorchYOLOv3.detect import DetectorYolov3
 from pytorchYOLOv4.demo import DetectorYolov4
 from adversarialYolo.demo import DetectorYolov2
 from adversarialYolo.load_data import InriaDataset, PatchTransformer, PatchApplier
-from pytorch_pretrained_detection import fasterrcnn
+from pytorch_pretrained_detection import FasterrcnnResnet50, MaskrcnnResnet50
 
 import pylab
 import imageio

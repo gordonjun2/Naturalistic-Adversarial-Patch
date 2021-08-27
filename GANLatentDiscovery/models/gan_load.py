@@ -98,7 +98,7 @@ def make_big_gan_D(weights_root, target_class):
     config['no_optim'] = True
     
     D = BigGAN.Discriminator(**config)
-    D.load_state_dict(torch.load('/scratch1/users/bhkung/release/adversarial-attack-ensemble/GANLatentDiscovery/models/pretrained/generators/BigGAN/BigGAN_ch96_bs256x8_138k/138k/D.pth', map_location='cpu'), strict=True)
+    D.load_state_dict(torch.load('./GANLatentDiscovery/models/pretrained/generators/BigGAN/BigGAN_ch96_bs256x8_138k/138k/D.pth', map_location='cpu'), strict=True)
     # sftp://bhkung@140.109.21.231/scratch1/users/bhkung/release/adversarial-attack-ensemble/GANLatentDiscovery/models/pretrained/generators/BigGAN/BigGAN_ch96_bs256x8_138k/138k
     return D.cuda()
 

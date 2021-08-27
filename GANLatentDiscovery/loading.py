@@ -14,14 +14,15 @@ def load_generator(args, G_weights):
     gan_type = args['gan_type']
     if gan_type == 'BigGAN':
         G = make_big_gan(G_weights, args['target_class'])
-        D = make_big_gan_D(G_weights, args['target_class'])
+        # D = make_big_gan_D(G_weights, args['target_class'])
+        D = None
     elif gan_type in ['ProgGAN']:
         G = make_proggan(G_weights)
     elif 'StyleGAN2' in gan_type:
         G = make_style_gan2(args['resolution'], G_weights, args['w_shift'])
     else:
         G = make_sngan(G_weights)
-    return G.eval(), D.eval()
+    return G.eval()
 
 
 
@@ -49,7 +50,7 @@ def load_from_dir(root_dir, model_index=None, G_weights=None, shift_in_w=True):
     if 'resolution' not in args.keys():
         args['resolution'] = 128
 
-    G, D = load_generator(args, G_weights)
+    G = load_generator(args, G_weights)
     deformator = LatentDeformator(
         shift_dim=G.dim_shift,
         input_dim=args['directions_count'] if 'directions_count' in args.keys() else None,
@@ -74,7 +75,7 @@ def load_from_dir(root_dir, model_index=None, G_weights=None, shift_in_w=True):
     setattr(deformator, 'annotation',
             load_human_annotation(os.path.join(root_dir, HUMAN_ANNOTATION_FILE)))
 
-    return deformator.eval().cuda(), G.eval().cuda(), shift_predictor.eval().cuda(), D.eval().cuda()
+    return deformator.eval().cuda(), G.eval().cuda(), shift_predictor.eval().cuda()
 
 
 def load_human_annotation(txt_file, verbose=False):

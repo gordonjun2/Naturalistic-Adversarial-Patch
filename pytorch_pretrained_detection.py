@@ -25,6 +25,7 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+import torch.nn as nn
 import torchvision.models as models
 import torchvision.transforms as trns
 from PIL import Image
@@ -145,81 +146,107 @@ def run_object_detection(model, image_path, transforms, threshold=0.5, output_pa
 
     return
 
-def fasterrcnn(tensor_image_inputs, device='cuda', cls_id_attacked=0, threshold=0.5):
+class FasterrcnnResnet50:
     """
     tensor_image_input: torch.Size([3, h, w])
     """
-    bboxes = []
-    prof_max_scores = []
-    any_max_scores = []
-    for tensor_image_input in tensor_image_inputs:
-        model = models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
-        model.eval().to(device)
-        outputs = model([tensor_image_input])[0]
-        # print("outputs :\n"+str(outputs))
+    def __init__(self, device='cuda'):
+        self.model = models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
+        self.model.eval().to(device)
+        self.device = device
+    def detect(self, tensor_image_inputs, cls_id_attacked=0, threshold=0.5):
+        bboxes = []
+        prof_max_scores = []
+        any_max_scores = []
+        for tensor_image_input in tensor_image_inputs:
+            outputs = self.model([tensor_image_input])[0]
+            #
+            outputs["boxes"][:,0] = outputs["boxes"][:,0] / tensor_image_input.size()[-2]
+            outputs["boxes"][:,1] = outputs["boxes"][:,1] / tensor_image_input.size()[-1]
+            outputs["boxes"][:,2] = outputs["boxes"][:,2] / tensor_image_input.size()[-2]
+            outputs["boxes"][:,3] = outputs["boxes"][:,3] / tensor_image_input.size()[-1]
+            # create bbox with (batch,7). (x1,y1,x2,y2,score,score,class_id)
+            batch = outputs["boxes"].size()[0]
+            outputs["labels"] = outputs["labels"] - 1 # without class __background__
+            bbox = torch.cat((outputs["boxes"], outputs["scores"].resize(batch,1), outputs["scores"].resize(batch,1), outputs["labels"].resize(batch,1)), 1)
+            # get items with cls_id_attacked
+            any_max_score = torch.max(bbox[:,-2])
+            any_max_scores.append(any_max_score)
+            bbox = bbox[(bbox[:,-1] == cls_id_attacked)]
+            # score > threshold
+            bbox = bbox[(bbox[:,-2] >= threshold)]
+            if(bbox.size()[0]>0):
+                # get max score
+                max_score = torch.max(bbox[:,-2])
+                # print("max_score : "+str(max_score))
 
-        # # test output
-        # # Result postpro and vis
-        # # display_image = np.array(tensor_image_input.detach().cpu().permute(1, 2, 0))
-        # display_image = tensor_image_input.detach().cpu()
-        # display_image = np.array(trns.ToPILImage()(display_image))
-        # outputs = {k: v.detach().cpu().numpy() for k, v in outputs.items()}
-        # print("outputs :\n"+str(outputs))
-        # output_path = "./pytorch_model_out.png"
-        # print("\n\nInference results:")
-        # for i, (bbox, label, score) in enumerate(zip(outputs["boxes"], outputs["labels"], outputs["scores"])):
-        #     if score < threshold:
-        #         continue
-
-        #     print(
-        #         f"Label {label}: {_COCO_INSTANCE_CATEGORY_NAMES[label]} ({score:.2f})")
-        #     print("bbox :\n"+str(bbox))
-
-        #     display_image = vis_bbox(display_image, bbox)
-        #     display_image = vis_class(
-        #         display_image, bbox, _COCO_INSTANCE_CATEGORY_NAMES[label])
-
-        # plt.figure(figsize=(10, 6))
-        # plt.imshow(display_image)
-        # plt.xticks([])
-        # plt.yticks([])
-        # plt.savefig(output_path, bbox_inches="tight")
-
-        outputs["boxes"][:,0] = outputs["boxes"][:,0] / tensor_image_input.size()[-2]
-        outputs["boxes"][:,1] = outputs["boxes"][:,1] / tensor_image_input.size()[-1]
-        outputs["boxes"][:,2] = outputs["boxes"][:,2] / tensor_image_input.size()[-2]
-        outputs["boxes"][:,3] = outputs["boxes"][:,3] / tensor_image_input.size()[-1]
-        # create bbox with (batch,7). (x1,y1,x2,y2,score,score,class_id)
-        batch = outputs["boxes"].size()[0]
-        outputs["labels"] = outputs["labels"] - 1 # without class __background__
-        bbox = torch.cat((outputs["boxes"], outputs["scores"].resize(batch,1), outputs["scores"].resize(batch,1), outputs["labels"].resize(batch,1)), 1)
-        # get items with cls_id_attacked
-        any_max_score = torch.max(bbox[:,-2])
-        any_max_scores.append(any_max_score)
-        bbox = bbox[(bbox[:,-1] == cls_id_attacked)]
-        # score > threshold
-        bbox = bbox[(bbox[:,-2] >= threshold)]
-        if(bbox.size()[0]>0):
-            # get max score
-            max_score = torch.max(bbox[:,-2])
-            # print("max_score : "+str(max_score))
-
-            bboxes.append(bbox)
-            prof_max_scores.append(max_score)
-
-    # stack
-    if(len(prof_max_scores) > 0):
-        prof_max_scores = torch.stack(prof_max_scores, dim=0)
-    else:
-        prof_max_scores = torch.stack(any_max_scores, dim=0) * 0.01
-        if(tensor_image_inputs.is_cuda):
-            prof_max_scores = prof_max_scores.cuda()
+                bboxes.append(bbox)
+                prof_max_scores.append(max_score)
+            else:
+                bboxes.append(torch.tensor([]))
+                prof_max_scores.append(torch.tensor(0.0).to(self.device))
+        # stack
+        if(len(prof_max_scores) > 0):
+            prof_max_scores = torch.stack(prof_max_scores, dim=0)
         else:
-            prof_max_scores = prof_max_scores
-    # print(bboxes)
-    # print(prof_max_scores)
+            prof_max_scores = torch.stack(any_max_scores, dim=0) * 0.01
+            if(tensor_image_inputs.is_cuda):
+                prof_max_scores = prof_max_scores.cuda()
+            else:
+                prof_max_scores = prof_max_scores
 
-    return prof_max_scores, prof_max_scores, bboxes
+        return prof_max_scores, bboxes
+
+class MaskrcnnResnet50:
+    """
+    tensor_image_input: torch.Size([3, h, w])
+    """
+    def __init__(self, device='cuda'):
+        self.model = models.detection.maskrcnn_resnet50_fpn(pretrained=True)
+        self.model.eval().to(device)
+        self.device = device
+    def detect(self, tensor_image_inputs, cls_id_attacked=0, threshold=0.5):
+        bboxes = []
+        prof_max_scores = []
+        any_max_scores = []
+        for tensor_image_input in tensor_image_inputs:
+            outputs = self.model([tensor_image_input])[0]
+            #
+            outputs["boxes"][:,0] = outputs["boxes"][:,0] / tensor_image_input.size()[-2]
+            outputs["boxes"][:,1] = outputs["boxes"][:,1] / tensor_image_input.size()[-1]
+            outputs["boxes"][:,2] = outputs["boxes"][:,2] / tensor_image_input.size()[-2]
+            outputs["boxes"][:,3] = outputs["boxes"][:,3] / tensor_image_input.size()[-1]
+            # create bbox with (batch,7). (x1,y1,x2,y2,score,score,class_id)
+            batch = outputs["boxes"].size()[0]
+            outputs["labels"] = outputs["labels"] - 1 # without class __background__
+            bbox = torch.cat((outputs["boxes"], outputs["scores"].resize(batch,1), outputs["scores"].resize(batch,1), outputs["labels"].resize(batch,1)), 1)
+            # get items with cls_id_attacked
+            any_max_score = torch.max(bbox[:,-2])
+            any_max_scores.append(any_max_score)
+            bbox = bbox[(bbox[:,-1] == cls_id_attacked)]
+            # score > threshold
+            bbox = bbox[(bbox[:,-2] >= threshold)]
+            if(bbox.size()[0]>0):
+                # get max score
+                max_score = torch.max(bbox[:,-2])
+                # print("max_score : "+str(max_score))
+
+                bboxes.append(bbox)
+                prof_max_scores.append(max_score)
+            else:
+                bboxes.append(torch.tensor([]))
+                prof_max_scores.append(torch.tensor(0.0).to(self.device))
+        # stack
+        if(len(prof_max_scores) > 0):
+            prof_max_scores = torch.stack(prof_max_scores, dim=0)
+        else:
+            prof_max_scores = torch.stack(any_max_scores, dim=0) * 0.01
+            if(tensor_image_inputs.is_cuda):
+                prof_max_scores = prof_max_scores.cuda()
+            else:
+                prof_max_scores = prof_max_scores
+
+        return prof_max_scores, bboxes
 
 if __name__ == "__main__":
     # parser = argparse.ArgumentParser("PyTorch Object Detection")
@@ -266,5 +293,4 @@ if __name__ == "__main__":
     image_tensor_2 = transforms(image_2)
     testing_data = torch.cat((image_tensor_1.unsqueeze(0), image_tensor_2.unsqueeze(0)), 0)
     print(f"\n\nImage size after transformation: {testing_data.size()}")
-    fasterrcnn(testing_data)
-
+    # fasterrcnn(testing_data)

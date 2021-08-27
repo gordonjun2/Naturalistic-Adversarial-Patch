@@ -14,7 +14,6 @@ import numpy as np
 
 from GANLatentDiscovery.torch_tools.visualization import to_image
 from GANLatentDiscovery.visualization import interpolate, interpolate_shift
-from pytorch_pretrained_detection import fasterrcnn
 from ipdb import set_trace as st
 
 
@@ -141,11 +140,11 @@ def eval_rowPtach(generator, batch_size, device
             # loss_overlap
             loss_overlap = -torch.mean(overlap_score)
         if(model_name == "fasterrcnn"):
-            max_prob, max_prob, bboxes = fasterrcnn(tensor_image_inputs=p_img_batch, device=device, cls_id_attacked=cls_id_attacked, threshold=0.5)
+            max_prob, bboxes = detector.detect(tensor_image_inputs=p_img_batch, cls_id_attacked=cls_id_attacked, threshold=0.5)
             # loss_det
             loss_det = torch.mean(max_prob)
             # no loss_overlap
-            loss_overlap = torch.tensor(0).to(device)
+            loss_overlap = torch.tensor(0.0).to(device)
         
         if(min_loss_det > loss_det):
             min_loss_det = loss_det
@@ -340,11 +339,11 @@ def train_rowPtach(method_num, generator
                 # loss_overlap
                 loss_overlap = -torch.mean(overlap_score)
             if(model_name == "fasterrcnn"):
-                max_prob, max_prob, bboxes = fasterrcnn(tensor_image_inputs=p_img_batch, device=device, cls_id_attacked=cls_id_attacked, threshold=0.5)
+                max_prob, bboxes = detector.detect(tensor_image_inputs=p_img_batch, cls_id_attacked=cls_id_attacked, threshold=0.5)
                 # loss_det
                 loss_det = torch.mean(max_prob)
                 # no loss_overlap
-                loss_overlap = torch.tensor(0).to(device)
+                loss_overlap = torch.tensor(0.0).to(device)
 
             if(min_loss_det > loss_det):
                 min_loss_det = loss_det

@@ -2,7 +2,7 @@
 
 **This repository is based on [PyTorch-YOLOv3](https://github.com/eriklindernoren/PyTorch-YOLOv3)** 
 
-Please refer to original link.
+Please refer to the original link.
 
 If you use this work, please cite this paper.
 

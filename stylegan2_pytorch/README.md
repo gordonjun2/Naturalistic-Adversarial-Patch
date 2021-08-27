@@ -2,7 +2,7 @@
 
 **This repository is based on [StyleGAN2](https://github.com/NVlabs/stylegan2)** 
 
-Please refer to original link.
+Please refer to the original link.
 
 Paper: http://arxiv.org/abs/1912.04958
 

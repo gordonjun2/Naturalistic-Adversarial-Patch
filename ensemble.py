@@ -22,6 +22,7 @@ import random
 from GANLatentDiscovery.loading import load_from_dir
 
 from PyTorchYOLOv3.detect import DetectorYolov3
+from pytorch_pretrained_detection import FasterrcnnResnet50, MaskrcnnResnet50
 from pytorchYOLOv4.demo import DetectorYolov4
 from adversarialYolo.demo import DetectorYolov2
 from adversarialYolo.train_patch import PatchTrainer
@@ -48,7 +49,7 @@ yolov4-tiny-img-size: B,3,416,416
 # torch.backends.cudnn.enabled = False
 ### -----------------------------------------------------------    Setting     ---------------------------------------------------------------------- ###
 Gparser = argparse.ArgumentParser(description='Advpatch Training')
-Gparser.add_argument('--seed', default='8484',type=int, help='choose seed') 
+Gparser.add_argument('--seed', default='15089',type=int, help='choose seed') 
 Gparser.add_argument('--model', default='yolov4', type=str, help='options : yolov2, yolov3, yolov4, fasterrcnn')
 Gparser.add_argument('--classBiggan', default=259, type=int, help='class in big gan') # 84:peacock
 Gparser.add_argument('--tiny', action='store_true', help='options :True or False')
@@ -133,22 +134,20 @@ np.savetxt(f"./{global_dir}/{apt}--latent:{max_value_latent_item}_normal.txt",[e
 
 
 # confirm training data (Second dataset)
-label_folder_name = 'yolo-labels_' + str(model_name)
+label_folder_name = 'yolo-labels_' + str('yolov4')
 if(model_name == "yolov3" or model_name == "yolov4"):
     if(yolo_tiny):
         label_folder_name = label_folder_name + 'tiny'
-if(model_name == "fasterrcnn"):
-    # temp
-    label_folder_name = 'yolo-labels_yolov4tiny'
+
 
 # load the pre-trained from GANLatentDiscovery
 if(method_num == 2):
-    deformator, G, shift_predictor, D = load_from_dir(
+    deformator, G, shift_predictor = load_from_dir(
         './GANLatentDiscovery/models/pretrained/deformators/BigGAN/',
         G_weights='./GANLatentDiscovery/models/pretrained/generators/BigGAN/G_ema.pth')
     generator_biggan = G
     if enable_discriminator == True:
-        discriminator_biggan = D
+        discriminator_biggan = None
     else:
         D = None
         discriminator_biggan = None
@@ -249,7 +248,10 @@ if(model_name == "yolov4"):
         batch_size_second=1
 if(model_name == "fasterrcnn"):
     # just use fasterrcnn directly
-    detector = None
+    batch_size_second = 8
+    detector = FasterrcnnResnet50()
+if(model_name == "maskrcnn"):
+    detector = MaskrcnnResnet50()
 finish = time.time()
 print('Load detector in %f seconds.' % (finish - start))
 
